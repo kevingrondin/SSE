@@ -5,7 +5,7 @@
 
 ## swamp-events
 
-```JS
+```Shell
 npm install && npm run start
 ```
 
@@ -26,6 +26,81 @@ curl -X POST \
 
 ## swamp-stats
 
-```JS
+```Shell
+npx create-react-app swamp-stats && cd ./swamp-stats
+```
+
+__App.js__
+```JSX
+import React, { useState, useEffect } from 'react';
+import './App.css';
+
+function App() {
+  const [ nests, setNests ] = useState([]);
+  const [ listening, setListening ] = useState(false);
+
+  useEffect( () => {
+    if (!listening) {
+      const events = new EventSource('http://localhost:4000/events');
+      events.onmessage = (event) => {
+        const parsedData = JSON.parse(event.data);
+
+        setNests((nests) => nests.concat(parsedData));
+      };
+
+      setListening(true);
+    }
+  }, [listening, nests]);
+  
+  return (
+    <table className="stats-table">
+      <thead>
+        <tr>
+          <th>Momma</th>
+          <th>Eggs</th>
+          <th>Temperature</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          nests.map((nest, i) =>
+            <tr key={i}>
+              <td>{nest.momma}</td>
+              <td>{nest.eggs}</td>
+              <td>{nest.temperature} ℃</td>
+            </tr>
+          )
+        }
+      </tbody>
+    </table>
+  );
+}
+
+export default App;
+```
+
+__App.css__
+```CSS
+body {
+  color: #555;
+  margin: 0 auto;
+  max-width: 50em;
+  font-size: 25px;
+  line-height: 1.5;
+  padding: 4em 1em;
+}
+
+.stats-table {
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+}
+
+tbody tr:hover {
+  background-color: #f5f5f5;
+}
+```
+
+```Shell
 npm install && npm run start
 ```
